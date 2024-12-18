@@ -92,36 +92,9 @@ def rowExtender(arr, extend):                 #Make Sure The length of "to-be-ex
     newArray=np.append(arr, [extend], axis=0)
     return newArray
     
-def nRowMod(arr, n, index, newValue):
-    tempList=np.array([],dtype=np.int8)
-    for i in range(arr.shape[1]):
-        if i == index:
-            tempList = np.append(tempList,newValue)
-        else:
-            tempList = np.append(tempList,arr[n][i])
-    return tempList
-    
 def arrayMod(arr, Row, Column, newValue):
-    Row = Row-1
-    Column = Column-1
-    newArray=np.array([],dtype=np.int8)
-    for i in range(arr.shape[0]):
-        if i == 0:
-            if i == Row:
-                newArray= np.append(newArray, [nRowMod(arr,i, Column, newValue)])
-            else:
-                newArray= np.append(newArray, [nRow(arr,i)])
-        elif i == 1:
-            if i == Row:
-                newArray= np.append([newArray], [nRowMod(arr,i, Column, newValue)], axis=0)
-            else:
-                newArray= np.append([newArray], [nRow(arr,i)], axis=0)
-        else:
-            if i == Row:
-                newArray= np.append(newArray, [nRowMod(arr,i, Column, newValue)], axis=0)
-            else:
-                newArray= np.append(newArray, [nRow(arr,i)], axis=0)
-    return newArray
+    arr[Row-1,Column-1]=newValue
+    return arr
 
 # Game Mechanism
 for i in range(1000):
