@@ -13,23 +13,6 @@ myArray = np.array([
     [5,1,2,3,4,6,7,8,9]
 ], dtype=np.int8)
 
-#Randomizer Start
-
-#Fill left-bottom and right-top grid with random permutation of 1-9
-def randomPermutationNum(number):
-    array=list(range(1,number+1))
-    permutated = []
-    for i in range(0,len(array)):
-        index = random.randint(0,len(array)-1)
-        permutated = permutated + [array[index]]
-        array.pop(index)
-    return permutated
-
-# def fillGrid(arr):
-    # for i in range(1,3):
-
-#Randomizer Ends
-
 #Given a 2-dimensional array "arr" an an integer "n", return the nth Column as a one-dimensional numpy array
 def nColumn(arr,n):
     columnArray=np.array([],dtype=np.int8)
@@ -107,16 +90,12 @@ def allGood(arr):
         return True
     else:
         return False
-
-def rowExtender(arr, extend):                 #Make Sure The length of "to-be-extended" row match that of row of Array
-    newArray=np.append(arr, [extend], axis=0)
-    return newArray
     
 def arrayMod(arr, Row, Column, newValue):
     arr[Row-1,Column-1]=newValue
     return arr
 
-#Randomizer Start
+#----------Randomizer Start----------
 
 def randomPermutationNum(number):
     array=list(range(1,number+1))
@@ -127,8 +106,8 @@ def randomPermutationNum(number):
         array.pop(index)
     return permutated
 
-#Fill a grid with random number 1-9
-def fillXYGrid(array, x_axis, y_axis):
+#Fill a grid with random number 1-9 (Without caring if it's even valid or not)#
+def randomFillXYGrid(array, y_axis, x_axis):
     permutation = randomPermutationNum(9)
     y_end = y_axis*3
     y_start = y_end - 3
@@ -142,24 +121,47 @@ def fillXYGrid(array, x_axis, y_axis):
             array[i,j]=permutation[k]
             k+=1
     return array
-#Randomizer Ends
-print(fillXYGrid(myArray,3,1))
 
-# Game Mechanism
-# for i in range(1000):
-    # if i == 0:
-        # print(myArray)
-        # Row= int(input('Enter The Row:'))
-        # Column=int(input('Enter The Column:'))
-        # Value=int(input('Enter The Value:'))
-        # tempArray= arrayMod(myArray, Row, Column, Value)
-    # elif allGood(tempArray):
-        # print(tempArray)
-        # print("YOU HAVE SOLVED THE SUDOKU!!!")
-        # break
-    # else:
-        # print(tempArray)
-        # Row= int(input('Enter The Row:'))
-        # Column=int(input('Enter The Column:'))
-        # Value=int(input('Enter The Value:'))
-        # tempArray= arrayMod(myArray, Row, Column, Value)
+#Fill a grid with random number 1-9 (While watching out for sudoku constraint)#
+#i.e. the grid must be filled randomly but doesn't break any sudoku rules
+#WARNING: In this current version the function still doesn't work properly!!!
+def constraintFillXYGrid(array, y_axis, x_axis):
+    availableNum=range(0,9)
+    y_end = y_axis*3
+    y_start = y_end - 3
+    x_end = x_axis*3
+    x_start = x_end - 3
+    y_iteration=range(y_start,y_end)
+    x_iteration=range(x_start,x_end)
+    k=0
+    for i in x_iteration:
+        for j in y_iteration:
+            for a in range(0,9):
+                availableNum = list(set(availableNum) - set([array[i,a]])
+            for b in range(0,9):
+                availableNum = list(set(availableNum) - set([array[b,i]])
+            k=random.choice(availableNum)
+            array[i,j]=k
+            availableNum = list(set(availableNum) - set([k])
+    return array
+
+#----------Randomizer Ends----------
+
+Game Mechanism
+for i in range(1000):
+    if i == 0:
+        print(myArray)
+        Row= int(input('Enter The Row:'))
+        Column=int(input('Enter The Column:'))
+        Value=int(input('Enter The Value:'))
+        tempArray= arrayMod(myArray, Row, Column, Value)
+    elif allGood(tempArray):
+        print(tempArray)
+        print("YOU HAVE SOLVED THE SUDOKU!!!")
+        break
+    else:
+        print(tempArray)
+        Row= int(input('Enter The Row:'))
+        Column=int(input('Enter The Column:'))
+        Value=int(input('Enter The Value:'))
+        tempArray= arrayMod(myArray, Row, Column, Value)
