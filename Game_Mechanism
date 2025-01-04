@@ -1,16 +1,18 @@
 import numpy as np
 import random
+import tkinter as tk
+import time
 
 myArray = np.array([
-    [3,5,7,1,2,3,4,5,2],
-    [1,2,3,2,4,1,2,3,4],
-    [7,8,2,3,4,5,6,7,9],
-    [4,3,1,2,1,6,7,8,4],
-    [1,2,3,4,5,6,7,8,9],
-    [2,1,3,4,5,6,7,8,9],
-    [3,1,2,4,5,6,7,8,9],
-    [4,1,2,3,5,6,7,8,9],
-    [5,1,2,3,4,6,7,8,9]
+    [5, 3, 4, 6, 7, 8, 9, 1, 2],
+    [6, 7, 2, 1, 9, 5, 3, 4, 8],
+    [1, 9, 8, 3, 4, 2, 5, 6, 7],
+    [8, 5, 9, 7, 6, 1, 4, 2, 3],
+    [4, 2, 6, 8, 5, 3, 7, 9, 1],
+    [7, 1, 3, 9, 2, 4, 8, 5, 6],
+    [9, 6, 1, 5, 3, 7, 2, 8, 4],
+    [2, 8, 7, 4, 1, 9, 6, 3, 5],
+    [3, 4, 5, 2, 8, 6, 1, 7, 9]
 ], dtype=np.int8)
 
 #Given a 2-dimensional array "arr" an an integer "n", return the nth Column as a one-dimensional numpy array
@@ -96,21 +98,168 @@ def arrayMod(arr, Row, Column, newValue):
     arr[Row-1,Column-1]=newValue
     return arr
 
-# Game Mechanism
-for i in range(1000):
-    if i == 0:
-        print(myArray)
-        Row= int(input('Enter The Row:'))
-        Column=int(input('Enter The Column:'))
-        Value=int(input('Enter The Value:'))
-        tempArray= arrayMod(myArray, Row, Column, Value)
-    elif allGood(tempArray):
-        print(tempArray)
-        print("YOU HAVE SOLVED THE SUDOKU!!!")
-        break
-    else:
-        print(tempArray)
-        Row= int(input('Enter The Row:'))
-        Column=int(input('Enter The Column:'))
-        Value=int(input('Enter The Value:'))
-        tempArray= arrayMod(myArray, Row, Column, Value)
+#============================UI STARTS============================================
+#-------------Root and game window declaration----------
+
+root = tk.Tk()
+root.title("Main Menu") 
+
+#-----------Button mechanism----------------------------
+def start_timer(self_window):
+    global start_time
+    start_time = time.time()  # Record the start time
+    
+    # Update the time every 1000 ms (1 second)
+    update_time(self_window)
+
+def update_time(self_window):
+    if start_time is None:
+        return
+    
+    # Calculate the elapsed time
+    time_elapsed = time.time() - start_time
+    
+    # Update the label in the new window
+    self_window.after(1000, update_time, self_window)  # Keep updating every second
+    label.config(text=f"Time elapsed: {int(time_elapsed)} seconds")
+
+def mainGameplay():
+#=======================================MAIN GAMEPLAY MECHANISM STARTS=======================================
+    
+    #Declaration of new window for the gameplay window
+    self_window = tk.Toplevel()
+    self_window.title("Sudoku Game")
+    
+    #-------------Mechanism for every buttons--------------
+    def sudokuButtonMechanism(x,y):
+        for widget in sudokuFrame.grid_slaves():
+            info = widget.grid_info()
+            row = info["row"]
+            column = info["column"]
+            if row == x and column == y:
+                widget.config(bg = "yellow")
+            else:
+                widget.config(bg = "white")
+        for widget in entryFrame.grid_slaves():
+            widget.destroy()
+        for i in range(0,9):
+            entryButton = tk.Button(entryFrame, text = i+1, width=3, height=1, font=("Courier New",15, "bold"), relief="flat")
+            entryButton.config(command=lambda counter=i+1 :entryButtonMechanism(counter,x,y))
+            entryButton.grid(row=0, column=i, padx =(5,5), pady=(5,5))
+        emptyButton = tk.Button(entryFrame, text = "X", width=3, height=1, font=("Courier New",15, "bold"), relief="flat")
+        emptyButton.config(command=lambda counter=0 :entryButtonMechanism(counter,x,y))
+        emptyButton.grid(row=0, column=9, padx =(5,5), pady=(5,5))
+
+    def entryButtonMechanism(newElement,i,j):
+        #Numpy Mechanism
+        myArray[i,j] = newElement
+
+        #Tkinter Mechanism
+        for widget in (sudokuFrame.grid_slaves(row=i,column=j)):
+            widget.destroy()
+            
+        if (i+1) % 3 == 0 and (j+1) % 3 == 0:
+            sudokuButton = tk.Button(sudokuFrame, text = newElement, width=3, height=1, font=("Courier New",15, "bold"), bg = "yellow",
+            relief="flat", activebackground="lightgreen", command= lambda x=i, y=j: sudokuButtonMechanism(x,y))
+            sudokuButton.grid(row=i, column=j, padx =(1,5), pady=(1,5))
+        elif (i+1) % 3 == 0:
+            sudokuButton = tk.Button(sudokuFrame, text = newElement, width=3, height=1, font=("Courier New",15, "bold"), bg = "yellow",
+            relief="flat", activebackground="lightgreen", command= lambda x=i, y=j: sudokuButtonMechanism(x,y))
+            sudokuButton.grid(row=i, column=j, padx = 1, pady=(1,5))
+        elif (j+1) % 3 == 0:
+            sudokuButton = tk.Button(sudokuFrame, text = newElement, width=3, height=1, font=("Courier New",15, "bold"), bg = "yellow",
+            relief="flat", activebackground="lightgreen", command= lambda x=i, y=j: sudokuButtonMechanism(x,y))
+            sudokuButton.grid(row=i, column=j, padx = (1,5), pady=1)
+        else:
+            sudokuButton = tk.Button(sudokuFrame, text = newElement, width=3, height=1, font=("Courier New",15, "bold"), bg = "yellow",
+            relief="flat", activebackground="lightgreen",command= lambda x=i, y=j: sudokuButtonMechanism(x,y))
+            sudokuButton.grid(row=i, column=j, padx = 1, pady=1)
+           
+        if newElement == 0:
+            sudokuButton.config(fg="white")
+            
+    def solveButtonMechanism():
+        if allGood(myArray):
+            print(True)
+        else:
+            print(False)
+        
+    #------------------Mechanism for every button ends------------
+        
+    #Creating the frames
+    outerFrame1 = tk.Frame(self_window, bg="lightblue")
+    outerFrame1.grid(row=0,column=0,padx=50)
+
+    sudokuFrame = tk.Frame(outerFrame1, bg="lightblue")
+    sudokuFrame.grid(row=0,column=0,padx=(5,0),pady=(5,0))
+
+    outerFrame2 = tk.Frame(self_window)
+    outerFrame2.grid(row=1,column=0,pady=20)
+
+    dummyFrame = tk.Frame(outerFrame2, bg = "lightgrey")
+    dummyFrame.grid(row=0,column=0)
+
+    entryFrame = tk.Frame(outerFrame2, bg = "lightgrey")
+    entryFrame.grid(row=0,column=0)
+
+    outerFrame3 = tk.Frame(self_window, bg="lightgreen")
+    outerFrame3.grid(row=2,column=0)
+
+    #Creating the sudoku grid
+    for i in range(0,9):
+        for j in range(0,9):
+            if (i+1) % 3 == 0 and (j+1) % 3 == 0:
+                sudokuButton = tk.Button(sudokuFrame, text = myArray[i,j], width=3, height=1, font=("Courier New",15, "bold"), 
+                relief="flat", activebackground="lightgreen", command= lambda x=i, y=j: sudokuButtonMechanism(x,y))
+                sudokuButton.grid(row=i, column=j, padx =(1,5), pady=(1,5))
+            elif (i+1) % 3 == 0:
+                sudokuButton = tk.Button(sudokuFrame, text = myArray[i,j], width=3, height=1, font=("Courier New",15, "bold"), 
+                relief="flat", activebackground="lightgreen", command= lambda x=i, y=j: sudokuButtonMechanism(x,y))
+                sudokuButton.grid(row=i, column=j, padx = 1, pady=(1,5))
+            elif (j+1) % 3 == 0:
+                sudokuButton = tk.Button(sudokuFrame, text = myArray[i,j], width=3, height=1, font=("Courier New",15, "bold"), 
+                relief="flat", activebackground="lightgreen", command= lambda x=i, y=j: sudokuButtonMechanism(x,y))
+                sudokuButton.grid(row=i, column=j, padx = (1,5), pady=1)
+            else:
+                sudokuButton = tk.Button(sudokuFrame, text = myArray[i,j], width=3, height=1, font=("Courier New",15, "bold"), 
+                relief="flat", activebackground="lightgreen",command= lambda x=i, y=j: sudokuButtonMechanism(x,y))
+                sudokuButton.grid(row=i, column=j, padx = 1, pady=1)
+                
+    #Dummy entry frame
+    def insertDummy():
+        for i in range(0,9):
+            entryButton = tk.Button(dummyFrame, text = i+1, width=3, height=1, font=("Courier New",15, "bold"), relief="flat",
+            state="disabled")
+            entryButton.config(command=lambda counter=i+1 :mechanism(counter))
+            entryButton.grid(row=0, column=i, padx =(5,5), pady=(5,5))
+            
+        emptyButton = tk.Button(dummyFrame, text = "X", width=3, height=1, font=("Courier New",15, "bold"), relief="flat",
+        state = "disabled")
+        emptyButton.config(command=lambda counter=0 :entryButtonMechanism(counter,x,y))
+        emptyButton.grid(row=0, column=10, padx =(5,5), pady=(5,5))
+    insertDummy()
+        
+    #Utility buttons
+    resetButton = tk.Button(outerFrame3, text = "Reset", width=7, height=1, font=("Courier New",15, "bold"),
+    relief="flat", activebackground="lightgreen")
+    resetButton.grid(row=0,column=1,padx=10)
+
+    solveButton = tk.Button(outerFrame3, text = "Solve", width=7, height=1, font=("Courier New",15, "bold"),
+    relief="flat", activebackground="lightgreen", command=solveButtonMechanism)
+    solveButton.grid(row=0,column=2,padx=10)
+
+    global label
+    label = tk.Label(outerFrame3, text="Time elapsed: 0.00 seconds", font=("Courier New", 14))
+    label.grid(row =0, column =0,padx=20, pady=20)
+    start_timer(self_window)
+    
+#==================================MAIN GAMEPLAY MECHANISM ENDS=================================
+
+#The holy grail mainloop
+def newGameButtonMechanism():
+    mainGameplay()
+    
+newGameButton = tk.Button(root, text="New Game", command=newGameButtonMechanism)
+newGameButton.pack()
+
+root.mainloop()
