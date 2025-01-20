@@ -1,0 +1,53 @@
+import numpy as np
+import random
+
+class RandomSudokuBoard:
+
+    def __init__(self):
+        self.board = np.zeros((9,9), dtype=np.int8)
+        # self.board = np.array([
+    # [5, 3, 0, 0, 7, 0, 0, 0, 0],
+    # [6, 0, 0, 1, 9, 5, 0, 0, 0],
+    # [0, 9, 8, 0, 0, 0, 0, 6, 0],
+    # [8, 0, 0, 0, 6, 0, 0, 0, 3],
+    # [4, 0, 0, 8, 0, 3, 0, 0, 1],
+    # [7, 0, 0, 0, 2, 0, 0, 0, 6],
+    # [0, 6, 0, 0, 0, 0, 2, 8, 0],
+    # [0, 0, 0, 4, 1, 9, 0, 0, 5],
+    # [0, 0, 0, 0, 8, 0, 0, 0, 9]
+# ], dtype=np.int8)
+    
+    def possible(self,y,x,n):
+        for i in range(0,9):
+            if self.board[y,i] == n:
+                return False
+        for i in range(0,9):
+            if self.board[i,x] == n:
+                return False
+            
+        x0 = (x//3) * 3
+        y0 = (y//3) * 3
+        for i in range(0,3):
+            for j in range(0,3):
+                if self.board[y0+i,x0+j] == n:
+                    return False
+        return True
+    
+    def solve(self):
+        for y in range(9):
+            for x in range(9):
+                if self.board[y, x] == 0:  # Find an empty cell
+                    for n in range(1, 10):  # Try numbers 1 to 9
+                        if self.possible(y, x, n):
+                            self.board[y, x] = n
+                            if self.solve():  # If a solution is found, stop further recursion
+                                return True
+                            self.board[y, x] = 0  # Backtrack if no solution is found
+                    return False  # No valid number was found, trigger backtracking
+        return True  # If no empty cells are left, the board is solved
+        
+    def randomize(self):
+        randomPermutation = [1,2,3,4,5,6,7,8,9]
+        random.shuffle(randomPermutation)
+        for i in range(9):
+            self.board[0,i] = randomPermutation[i]

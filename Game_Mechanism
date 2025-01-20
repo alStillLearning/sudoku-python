@@ -2,18 +2,12 @@ import numpy as np
 import random
 import tkinter as tk
 import time
+import Randomizer
 
-myArray = np.array([
-    [5, 3, 4, 6, 7, 8, 9, 1, 2],
-    [6, 7, 2, 1, 9, 5, 3, 4, 8],
-    [1, 9, 8, 3, 4, 2, 5, 6, 7],
-    [8, 5, 9, 7, 6, 1, 4, 2, 3],
-    [4, 2, 6, 8, 5, 3, 7, 9, 1],
-    [7, 1, 3, 9, 2, 4, 8, 5, 6],
-    [9, 6, 1, 5, 3, 7, 2, 8, 4],
-    [2, 8, 7, 4, 1, 9, 6, 3, 5],
-    [3, 4, 5, 2, 8, 6, 1, 7, 9]
-], dtype=np.int8)
+sudokuBoard = Randomizer.RandomSudokuBoard()
+sudokuBoard.randomize()
+sudokuBoard.solve()
+print(sudokuBoard.board)
 
 #Given a 2-dimensional array "arr" an an integer "n", return the nth Column as a one-dimensional numpy array
 def nColumn(arr,n):
@@ -78,7 +72,7 @@ def columnsAllGood(arr):
 def gridsAllGood(arr):
     for i in range(1,3):
         for j in range(1,3):
-            tempList=xyGrids(myArray, i, j)
+            tempList=xyGrids(sudokuBoard.board, i, j)
             if noSameElement(tempList):
                 pass
             else: return False
@@ -100,9 +94,8 @@ def arrayMod(arr, Row, Column, newValue):
 
 #============================UI STARTS============================================
 #-------------Root and game window declaration----------
-
 root = tk.Tk()
-root.title("Main Menu") 
+root.title("Main Menu")
 
 #-----------Button mechanism----------------------------
 def start_timer(self_window):
@@ -129,7 +122,7 @@ def mainGameplay():
     #Declaration of new window for the gameplay window
     self_window = tk.Toplevel()
     self_window.title("Sudoku Game")
-    
+        
     #-------------Mechanism for every buttons--------------
     def sudokuButtonMechanism(x,y):
         for widget in sudokuFrame.grid_slaves():
@@ -138,8 +131,8 @@ def mainGameplay():
             column = info["column"]
             if row == x and column == y:
                 widget.config(bg = "yellow")
-            else:
-                widget.config(bg = "white")
+            # else:
+                # widget.config(bg = "white")
         for widget in entryFrame.grid_slaves():
             widget.destroy()
         for i in range(0,9):
@@ -152,7 +145,7 @@ def mainGameplay():
 
     def entryButtonMechanism(newElement,i,j):
         #Numpy Mechanism
-        myArray[i,j] = newElement
+        sudokuBoard.board[i,j] = newElement
 
         #Tkinter Mechanism
         for widget in (sudokuFrame.grid_slaves(row=i,column=j)):
@@ -179,8 +172,12 @@ def mainGameplay():
             sudokuButton.config(fg="white")
             
     def solveButtonMechanism():
-        if allGood(myArray):
-            print(True)
+        if allGood(sudokuBoard.board):
+            congratulationScreen = tk.Toplevel()
+            congratulationScreen.title("Game Finished")
+            
+            message = tk.Label(congratulationScreen, text="Congratulations! You have solved the sudoku")
+            message.pack()
         else:
             print(False)
         
@@ -209,19 +206,19 @@ def mainGameplay():
     for i in range(0,9):
         for j in range(0,9):
             if (i+1) % 3 == 0 and (j+1) % 3 == 0:
-                sudokuButton = tk.Button(sudokuFrame, text = myArray[i,j], width=3, height=1, font=("Courier New",15, "bold"), 
+                sudokuButton = tk.Button(sudokuFrame, text = sudokuBoard.board[i,j], width=3, height=1, font=("Courier New",15, "bold"), 
                 relief="flat", activebackground="lightgreen", command= lambda x=i, y=j: sudokuButtonMechanism(x,y))
                 sudokuButton.grid(row=i, column=j, padx =(1,5), pady=(1,5))
             elif (i+1) % 3 == 0:
-                sudokuButton = tk.Button(sudokuFrame, text = myArray[i,j], width=3, height=1, font=("Courier New",15, "bold"), 
+                sudokuButton = tk.Button(sudokuFrame, text = sudokuBoard.board[i,j], width=3, height=1, font=("Courier New",15, "bold"), 
                 relief="flat", activebackground="lightgreen", command= lambda x=i, y=j: sudokuButtonMechanism(x,y))
                 sudokuButton.grid(row=i, column=j, padx = 1, pady=(1,5))
             elif (j+1) % 3 == 0:
-                sudokuButton = tk.Button(sudokuFrame, text = myArray[i,j], width=3, height=1, font=("Courier New",15, "bold"), 
+                sudokuButton = tk.Button(sudokuFrame, text = sudokuBoard.board[i,j], width=3, height=1, font=("Courier New",15, "bold"), 
                 relief="flat", activebackground="lightgreen", command= lambda x=i, y=j: sudokuButtonMechanism(x,y))
                 sudokuButton.grid(row=i, column=j, padx = (1,5), pady=1)
             else:
-                sudokuButton = tk.Button(sudokuFrame, text = myArray[i,j], width=3, height=1, font=("Courier New",15, "bold"), 
+                sudokuButton = tk.Button(sudokuFrame, text = sudokuBoard.board[i,j], width=3, height=1, font=("Courier New",15, "bold"), 
                 relief="flat", activebackground="lightgreen",command= lambda x=i, y=j: sudokuButtonMechanism(x,y))
                 sudokuButton.grid(row=i, column=j, padx = 1, pady=1)
                 
